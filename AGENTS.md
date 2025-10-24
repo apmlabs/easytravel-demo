@@ -99,25 +99,29 @@ docker-compose pull && docker-compose up -d
 
 ## Rules
 - Always update AGENTS.md when discovering new deployment insights
-- Keep infrastructure details in PROGRESS.md
+- **Current status is in amazonq.md context** - check existing deployment before creating new infrastructure
 - Use AWS CLI to verify resources before creating new ones
 - Document any deployment issues and their solutions
 - Test application accessibility after deployment
-- **Default Infrastructure Behavior**: Create new EC2 instances by default when requested, maintain consistent naming conventions (e.g., "easyTravel-Demo")
+- **Default Infrastructure Behavior**: Check amazonq.md first - only create new infrastructure if none exists
 - **Default Region**: Use us-east-2 unless otherwise specified
+- **Status Reporting**: Current deployment status is always available in amazonq.md context
 
 ## Cleanup Strategy
 
 ### Complete Infrastructure Cleanup
 When cleaning up easyTravel deployments, follow this order to avoid dependency issues:
 
-1. **Terminate EC2 Instances**
+1. **Terminate and Clean Up EC2 Instances**
    ```bash
-   # List instances first
+   # List instances first (including terminated ones)
    aws ec2 describe-instances --region us-east-2 --filters "Name=tag:Name,Values=easyTravel*" --query "Reservations[].Instances[].[InstanceId,Tags[?Key=='Name'].Value|[0],State.Name]" --output table
    
-   # Terminate instances
+   # Terminate running instances (if any)
    aws ec2 terminate-instances --region us-east-2 --instance-ids INSTANCE_ID
+   
+   # Note: Terminated instances remain visible for ~1 hour before AWS auto-cleanup
+   # No manual deletion needed - AWS handles this automatically
    ```
 
 2. **Delete Key Pairs**
@@ -158,6 +162,7 @@ When cleaning up easyTravel deployments, follow this order to avoid dependency i
 
 ### Important Notes
 - **Always terminate instances first** to avoid charges
+- **Terminated instances remain visible** for ~1 hour before AWS auto-cleanup
 - **Remove PEM files immediately** after deleting key pairs to prevent confusion
 - **Check for custom security groups** - don't delete default VPC security groups
 - **Update documentation** after cleanup to reflect current state
@@ -166,6 +171,9 @@ When cleaning up easyTravel deployments, follow this order to avoid dependency i
 ## Critical Mistakes to Avoid
 - **Don't assume existing infrastructure**: Always check AWS resources first
 - **Don't use hardcoded resource IDs**: Security groups, subnets vary by account/region
+- **Don't use hardcoded AMI IDs**: Always query for latest AMI dynamically by region
+- **Use correct AWS CLI parameters**: Use `--count` not `--min-count/--max-count` for run-instances
+- **Don't forget SSH access**: Always add port 22 to security group for remote access
 - **Don't skip Docker group membership**: User must be in docker group to run containers
 - **Don't forget logout/login**: Required after adding user to docker group
 - **Don't ignore container logs**: Check logs if services fail to start properly
