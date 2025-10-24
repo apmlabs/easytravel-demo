@@ -109,8 +109,37 @@ docker-compose pull && docker-compose up -d
 
 ## Cleanup Strategy
 
-### Complete Infrastructure Cleanup
-When cleaning up easyTravel deployments, follow this order to avoid dependency issues:
+### Option 1: Shutdown Instance (Preserve Infrastructure)
+For temporary shutdown while preserving all infrastructure and configuration:
+
+```bash
+# Stop the EC2 instance (preserves all data and configuration)
+aws ec2 stop-instances --region us-east-2 --instance-ids INSTANCE_ID
+
+# Verify instance is stopped
+aws ec2 describe-instances --region us-east-2 --instance-ids INSTANCE_ID --query "Reservations[].Instances[].[InstanceId,State.Name]" --output table
+```
+
+**To restart later:**
+```bash
+# Start the stopped instance
+aws ec2 start-instances --region us-east-2 --instance-ids INSTANCE_ID
+
+# Get new public IP (changes after stop/start)
+aws ec2 describe-instances --region us-east-2 --instance-ids INSTANCE_ID --query "Reservations[].Instances[].[InstanceId,PublicIpAddress,State.Name]" --output table
+```
+
+**Benefits:**
+- Preserves all configuration and data
+- No redeployment needed
+- Faster restart (2-3 minutes vs 10-15 minutes for new deployment)
+- Keeps same instance ID and security group
+- easyTravel autostart service will restart containers automatically
+
+**Note:** Public IP changes after stop/start, but all configuration remains intact.
+
+### Option 2: Complete Infrastructure Cleanup
+When cleaning up easyTravel deployments permanently, follow this order to avoid dependency issues:
 
 1. **Terminate and Clean Up EC2 Instances**
    ```bash
