@@ -107,6 +107,7 @@ docker-compose pull && docker-compose up -d
 ## GitHub Repository Management
 - **GitHub Setup**: Follow GITHUB.md in this folder for repository setup instructions
 - **When asked about GitHub repositories**: Reference the GITHUB.md file in this project folder
+- **Critical**: Always check .gitignore before committing - AmazonQ.md should NEVER be committed
 
 ## Rules
 - Always update AGENTS.md when discovering new deployment insights

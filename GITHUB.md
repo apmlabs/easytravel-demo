@@ -2,6 +2,21 @@
 
 This guide shows how to create a private GitHub repository from your local project while protecting sensitive information.
 
+## Critical Git Rules for All Projects
+
+**ALWAYS check .gitignore before committing!** These files must NEVER be committed:
+- `secrets.yaml` - contains Dynatrace credentials
+- `*.pem` files - contains SSH private keys  
+- `AmazonQ.md` - dynamic status file that changes frequently
+- AWS credentials and environment files
+
+## Supported Projects
+
+This guide applies to all 3 MCP projects:
+1. **easytravel-demo** - Dynatrace easyTravel application deployment
+2. **github-mcp-server** - GitHub MCP server implementation
+3. **aws-api-mcp** - AWS API MCP server implementation
+
 ## Step 1: Create .gitignore File
 
 Create a `.gitignore` file to protect sensitive data:
@@ -44,6 +59,9 @@ node_modules/
 # Python cache (if any)
 __pycache__/
 *.pyc
+
+# Dynamic status files
+AmazonQ.md
 EOF
 ```
 
@@ -53,22 +71,22 @@ EOF
 # Initialize git repository
 git init
 
-# Check what files will be tracked (secrets.yaml should NOT appear)
+# Check what files will be tracked (secrets.yaml and AmazonQ.md should NOT appear)
 git status
 
 # Add all files
 git add .
 
 # Make initial commit
-git commit -m "Initial commit: easyTravel AWS deployment scripts and documentation"
+git commit -m "Initial commit: Project deployment scripts and documentation"
 ```
 
 ## Step 3: Create Private GitHub Repository
 
 ### Option A: Using GitHub CLI (if available)
 ```bash
-# Create private repository
-gh repo create easytravel-demo --private --description "easyTravel Dynatrace demo application deployment scripts and documentation for AWS EC2"
+# Create private repository (replace PROJECT_NAME with actual project name)
+gh repo create PROJECT_NAME --private --description "Project deployment scripts and documentation"
 
 # Push code
 git push -u origin main
@@ -76,15 +94,15 @@ git push -u origin main
 
 ### Option B: Manual Creation
 1. Go to https://github.com/new
-2. Repository name: `easytravel-demo`
+2. Repository name: Use appropriate project name
 3. Set to **Private**
 4. Don't initialize with README (you already have one)
 5. Click "Create repository"
 
 Then push your code:
 ```bash
-# Add remote (replace YOUR_USERNAME with your GitHub username)
-git remote add origin https://github.com/YOUR_USERNAME/easytravel-demo.git
+# Add remote (replace YOUR_USERNAME and PROJECT_NAME)
+git remote add origin https://github.com/YOUR_USERNAME/PROJECT_NAME.git
 
 # Push code
 git branch -M main
@@ -95,14 +113,15 @@ git push -u origin main
 
 After pushing, verify that sensitive files are protected:
 
-1. Check your GitHub repository - `secrets.yaml` should NOT be visible
+1. Check your GitHub repository - `secrets.yaml` and `AmazonQ.md` should NOT be visible
 2. Verify `.gitignore` is working: `git status` should not show ignored files
 3. Confirm repository is private in GitHub settings
 
 ## Important Security Notes
 
-- **Never commit secrets.yaml** - contains Dynatrace credentials
+- **Never commit secrets.yaml** - contains sensitive credentials
 - **Never commit *.pem files** - contains SSH private keys
+- **Never commit AmazonQ.md** - dynamic status file
 - **Always verify .gitignore** before first commit
 - **Keep repository private** for security
 
@@ -110,8 +129,16 @@ After pushing, verify that sensitive files are protected:
 
 To update the repository:
 ```bash
+# Always check .gitignore first!
+git status
+
+# Add only non-ignored files
 git add .
+
+# Commit changes
 git commit -m "Description of changes"
+
+# Push to remote
 git push
 ```
 
