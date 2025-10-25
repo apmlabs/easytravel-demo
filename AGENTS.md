@@ -48,6 +48,13 @@ Repository URL: https://github.com/Dynatrace/easyTravel-Docker
   2. Make executable: `chmod +x Dynatrace-OneAgent-Linux-x86-*.sh`
   3. Install: `sudo ./Dynatrace-OneAgent-Linux-x86-*.sh`
   4. Verify: `sudo systemctl status oneagent`
+
+### OneAgent Control Commands
+- **Status check**: `sudo systemctl status oneagent`
+- **Version**: `sudo /opt/dynatrace/oneagent/agent/tools/oneagentctl --version`
+- **Server connection**: `sudo /opt/dynatrace/oneagent/agent/tools/oneagentctl --get-server`
+- **Help**: `sudo /opt/dynatrace/oneagent/agent/tools/oneagentctl --help`
+- **Container monitoring**: Look for `oneagenthelper --containerd` processes in status output
 - **Auto-discovery**: OneAgent automatically discovers and monitors Docker containers after installation
 
 ## Security Group Configuration
@@ -96,6 +103,10 @@ docker-compose down
 # Update and restart
 docker-compose pull && docker-compose up -d
 ```
+
+## GitHub Repository Management
+- **GitHub Setup**: Follow GITHUB.md in this folder for repository setup instructions
+- **When asked about GitHub repositories**: Reference the GITHUB.md file in this project folder
 
 ## Rules
 - Always update AGENTS.md when discovering new deployment insights
