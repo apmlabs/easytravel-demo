@@ -117,6 +117,7 @@ docker-compose pull && docker-compose up -d
 - **Default Infrastructure Behavior**: Check amazonq.md first - only create new infrastructure if none exists
 - **Default Region**: Use us-east-2 unless otherwise specified
 - **Status Reporting**: Current deployment status is always available in amazonq.md context
+- **CRITICAL: ALWAYS UPDATE STATUS FILES** - After ANY infrastructure change (start/stop/terminate/create), immediately update the easytravel-demo status documentation (AmazonQ.md) to reflect current state. Failure to update status files causes context loss and repeated mistakes across chat sessions.
 
 ## Cleanup Strategy
 
