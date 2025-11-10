@@ -34,6 +34,15 @@ Repository URL: https://github.com/Dynatrace/easyTravel-Docker
 7. **Autostart Setup**: Configure systemd service for automatic restart
 8. **Verification**: Check container status and port accessibility
 
+## CRITICAL LESSONS LEARNED (October 2025)
+- **NEVER deploy easyTravel without OneAgent first** - Missing monitoring creates gaps in observability
+- **ALWAYS update AmazonQ.md immediately after infrastructure changes** - Status documentation prevents context loss
+- **Verify OneAgent container monitoring**: Look for `oneagenthelper --containerd` processes in `sudo systemctl status oneagent`
+- **Complete verification checklist**: EC2 → Docker → Git → OneAgent → easyTravel → Autostart → HTTP tests → Status update
+- **SSH Key Strategy**: One shared key is simpler for demos, but be prepared to handle different keys per instance when required - don't assume all instances use the same key
+- **ALWAYS finish what you start** - Don't leave deployments half-complete, even if the user doesn't explicitly ask for completion
+- **OneAgent installation takes time** - Allow for the ~7MB download and installation process, don't rush to next steps
+
 ## Autostart Configuration
 - **Service File**: `/etc/systemd/system/easytravel-autostart.service`
 - **Auto-restart**: easyTravel starts automatically after EC2 reboot
@@ -108,6 +117,7 @@ docker-compose pull && docker-compose up -d
 - **GitHub Setup**: Follow GITHUB.md in this folder for repository setup instructions
 - **When asked about GitHub repositories**: Reference the GITHUB.md file in this project folder
 - **Critical**: Always check .gitignore before committing - AmazonQ.md should NEVER be committed
+- **CRITICAL RULE**: When asked "is everything synced with github?" - NEVER suggest checking or committing AmazonQ.md. It's intentionally in .gitignore and must stay local only. Focus only on tracked files for GitHub sync status.
 
 ## Rules
 - Always update AGENTS.md when discovering new deployment insights
@@ -119,6 +129,11 @@ docker-compose pull && docker-compose up -d
 - **Default Region**: Use us-east-2 unless otherwise specified
 - **Status Reporting**: Current deployment status is always available in amazonq.md context
 - **CRITICAL: ALWAYS UPDATE STATUS FILES** - After ANY infrastructure change (start/stop/terminate/create), immediately update the easytravel-demo status documentation (AmazonQ.md) to reflect current state. Failure to update status files causes context loss and repeated mistakes across chat sessions.
+- **CRITICAL: ALWAYS REPORT ALL 4 ACCESS POINTS** - When reporting deployment status or finishing installations, ALWAYS include all 4 application URLs:
+  - Main Portal: http://IP:80
+  - Angular UI: http://IP:9079  
+  - Backend API: http://IP:8080
+  - Direct Backend: http://IP:8091
 
 ## Cleanup Strategy
 
