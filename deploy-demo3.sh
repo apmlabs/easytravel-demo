@@ -1,14 +1,21 @@
 #!/bin/bash
 
 # easyTravel Demo 3 Deployment Script
-# Instance: i-0f21b99890d536367
-# IP: 18.117.175.31
-# Key: easytravel-demo3-key.pem
+# Usage: ./deploy-demo3.sh <instance-ip> <key-file>
 
-echo "🚀 Deploying easyTravel Demo 3..."
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <instance-ip> <key-file>"
+    echo "Example: $0 1.2.3.4 my-key.pem"
+    exit 1
+fi
+
+INSTANCE_IP=$1
+KEY_FILE=$2
+
+echo "🚀 Deploying easyTravel Demo 3 to $INSTANCE_IP..."
 
 # Connect and deploy
-ssh -i easytravel-demo3-key.pem -o StrictHostKeyChecking=no ec2-user@18.117.175.31 << 'EOF'
+ssh -i "$KEY_FILE" -o StrictHostKeyChecking=no ec2-user@"$INSTANCE_IP" << 'EOF'
 # Wait for user-data script to complete
 echo "⏳ Waiting for system setup to complete..."
 while ! docker --version >/dev/null 2>&1; do
@@ -60,9 +67,9 @@ sudo systemctl start easytravel-autostart.service
 
 echo "✅ easyTravel Demo 3 deployment complete!"
 echo "🌐 Access URLs:"
-echo "   Main Portal: http://18.117.175.31:80"
-echo "   Angular UI: http://18.117.175.31:9079"
-echo "   Backend API: http://18.117.175.31:8080"
+echo "   Main Portal: http://$INSTANCE_IP:80"
+echo "   Angular UI: http://$INSTANCE_IP:9079"
+echo "   Backend API: http://$INSTANCE_IP:8080"
 
 # Check container status
 echo "📊 Container Status:"
