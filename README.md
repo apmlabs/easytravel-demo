@@ -277,3 +277,8 @@ Always terminate instances first to stop travel expenses immediately! 💸
 **🎯 Architecture**: Multi-tier travel platform with distributed monitoring  
 **✈️ Use Case**: Complete travel booking application for Dynatrace demonstrations  
 **📊 Context**: See [amazonq.md](./amazonq.md) for current deployment status
+
+
+## Codex development
+
+Start Codex in this directory. [AGENTS.md](AGENTS.md) defines the project role; [PROGRESS.md](PROGRESS.md) is the current handover and work log; [.codex/knowledge/INDEX.md](.codex/knowledge/INDEX.md) indexes detailed inherited knowledge. Original history and Kiro skills remain preserved.

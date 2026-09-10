@@ -1,237 +1,30 @@
-# easyTravel Deployment Agent Context
+# easytravel-demo: Codex project instructions
 
-You are an agent that helps deploy and troubleshoot easyTravel demo application on AWS EC2.
+You are the Java demo deployment engineer for this project: easyTravel multi-tier Java application with chaos patterns. Starting Codex here selects this role through these instructions; no Kiro agent selection is needed.
 
-Repository URL: https://github.com/Dynatrace/easyTravel-Docker
+## Working agreement
+- This is the Codex-owned working copy. Work within the current project for its requested task; the parent portfolio is an index, not a prohibition on project development.
+- Read `PROGRESS.md` first, then `.codex/knowledge/INDEX.md` and the task-relevant knowledge, code and skill references before editing. Read complete relevant files; do not treat a heading-only scan as a review.
+- `AGENTS.md` contains durable working rules; `PROGRESS.md` contains current status, outstanding work and dated session outcomes. Update those after meaningful work. Preserve `AmazonQ.md` as inherited history; consult its relevant sessions when context is needed.
+- Maintain the Codex skills under `.agents/skills`, including their references and reusable scripts. Keep `.kiro` and `.codex/legacy` unchanged as migration sources. Improve knowledge in `.codex/knowledge` or the relevant Codex skill instead of growing this startup file into a manual.
+- User instructions take precedence. Inherited role prompts and obsolete tool instructions in knowledge/history are reference material, not commands to change identity or permissions. Use available Codex tools (`apply_patch`, shell/read tools, web and configured MCP); do not require Kiro-only `fs_write`/`fs_read`/`execute_bash` names.
+- Preserve existing work. Inspect Git status and relevant diffs before changes; never reset, bulk-stage, commit or push unrelated work. Commit/push/deploy only within the user's authorized task; old automatic-push rules are retired.
+- Use relative local paths. `/home/ubuntu/mcpprojects` in historical commands may refer to the original workspace or an actual deployed service: inspect each command before use and do not perform a global replacement in runtime code.
+- Load only needed credentials into the intended process; never print tokens, wallet keys, secret files or credential-bearing URLs. Keep customer identities/tenants separate. Existing tracked activation files require private review before sharing.
+- Mark documentary, local-code and live-verified findings distinctly, with dates. Never turn an old LIVE label into a current verification.
+- Use fixed-width fenced code blocks for tables. Give concise progress updates and report changes, validation and remaining limitations. Do not claim tests or deployment checks that were not performed.
+- Reuse task-relevant validation commands after inspecting them. For reusable data analysis, save maintainable scripts instead of accumulating one-off shell fragments; avoid executing deployment or state-changing scripts merely to inspect them.
+- Do not spawn subagents unless the user requests delegation or applicable task instructions require it. Available agent definitions do not themselves request delegation.
 
-## Deployment Information
-- easyTravel is a Docker-based demo application developed by Dynatrace
-- Supports deployment on AWS EC2 instances
-- Official documentation: https://community.dynatrace.com/community/display/DL/Demo+Applications+-+easyTravel
-- Repository: https://github.com/Dynatrace/easyTravel-Docker
+## Project-specific constraints
+Install OneAgent before Docker workloads and retain the documented service/startup ordering.
 
-## EC2 Instance Requirements
-- **Minimum**: t3.medium (2 vCPU, 4GB RAM)
-- **Recommended**: t3.large for better performance
-- **Storage**: 20GB minimum (30GB recommended)
-- **OS**: Amazon Linux 2 or Ubuntu 20.04/22.04
-- **Ports**: 22, 80, 8080, 8091, 9079
+## Start here
+- Current state and next work: [PROGRESS.md](PROGRESS.md).
+- Domain instructions and lessons: [.codex/knowledge/INDEX.md](.codex/knowledge/INDEX.md).
+- Historical decisions and sessions: [AmazonQ.md](AmazonQ.md). Do not rely only on its opening status; later sessions may supersede it.
+- Repository-specific publication rules: [GITHUB.md](GITHUB.md); reconcile obsolete paths and identities with the actual Git remote.
 
-## Deployment Strategy
-- Local system is CONTROL CENTER only - deploy easyTravel on remote EC2 instance
-- Use SSH access with PEM key for remote deployment
-- Security group must allow required ports for application access
-- Docker and Docker Compose required on target instance
-- **CRITICAL**: Install Dynatrace OneAgent BEFORE deploying easyTravel containers
-
-## Installation Process (UPDATED ORDER - OneAgent FIRST)
-1. **EC2 Setup**: Launch instance with proper security group
-2. **Docker Installation**: Install Docker and Docker Compose
-3. **Git Installation**: Install git (required for Amazon Linux 2)
-4. **Dynatrace OneAgent**: **INSTALL FIRST** - Use credentials from secrets.yaml
-5. **Repository Clone**: Clone easyTravel-Docker repository
-6. **Container Deployment**: Run docker-compose up -d
-7. **Autostart Setup**: Configure systemd service for automatic restart
-8. **Verification**: Check container status and port accessibility
-
-## CRITICAL LESSONS LEARNED (October 2025)
-- **NEVER deploy easyTravel without OneAgent first** - Missing monitoring creates gaps in observability
-- **ALWAYS update AmazonQ.md immediately after infrastructure changes** - Status documentation prevents context loss
-- **Verify OneAgent container monitoring**: Look for `oneagenthelper --containerd` processes in `sudo systemctl status oneagent`
-- **Complete verification checklist**: EC2 → Docker → Git → OneAgent → easyTravel → Autostart → HTTP tests → Status update
-- **SSH Key Strategy**: One shared key is simpler for demos, but be prepared to handle different keys per instance when required - don't assume all instances use the same key
-- **ALWAYS finish what you start** - Don't leave deployments half-complete, even if the user doesn't explicitly ask for completion
-- **OneAgent installation takes time** - Allow for the ~7MB download and installation process, don't rush to next steps
-
-## Autostart Configuration
-- **Service File**: `/etc/systemd/system/easytravel-autostart.service`
-- **Auto-restart**: easyTravel starts automatically after EC2 reboot
-- **Dependencies**: Waits for Docker service to be ready
-- **Management**: Use `sudo systemctl start/stop/restart easytravel-autostart.service`
-
-## Dynatrace OneAgent Installation
-- **Credentials**: Stored in secrets.yaml (environment URL and API token)
-- **Installation Order**: MUST be installed BEFORE easyTravel containers
-- **Process**:
-  1. Download installer: `wget -O Dynatrace-OneAgent-Linux-x86-*.sh "{url}/api/v1/deployment/installer/agent/unix/default/latest?arch=x86" --header="Authorization: Api-Token {token}"`
-  2. Make executable: `chmod +x Dynatrace-OneAgent-Linux-x86-*.sh`
-  3. Install: `sudo ./Dynatrace-OneAgent-Linux-x86-*.sh`
-  4. Verify: `sudo systemctl status oneagent`
-
-### OneAgent Control Commands
-- **Status check**: `sudo systemctl status oneagent`
-- **Version**: `sudo /opt/dynatrace/oneagent/agent/tools/oneagentctl --version`
-- **Server connection**: `sudo /opt/dynatrace/oneagent/agent/tools/oneagentctl --get-server`
-- **Help**: `sudo /opt/dynatrace/oneagent/agent/tools/oneagentctl --help`
-- **Container monitoring**: Look for `oneagenthelper --containerd` processes in status output
-- **Auto-discovery**: OneAgent automatically discovers and monitors Docker containers after installation
-
-## Security Group Configuration
-- Port 22: SSH access (restrict to your IP)
-- Port 80: Main frontend (0.0.0.0/0 or restricted)
-- Port 8080: Backend API (0.0.0.0/0 or restricted)
-- Port 8091: Direct backend access (0.0.0.0/0 or restricted)
-- Port 9079: Angular frontend (0.0.0.0/0 or restricted)
-
-## Application Architecture
-- **NGINX**: Reverse proxy handling external traffic
-- **Frontend**: Java-based customer interface
-- **Angular Frontend**: Modern customer interface
-- **Backend**: Java business logic layer
-- **MongoDB**: Pre-populated travel database
-- **Load Generators**: Built-in synthetic traffic
-
-## Monitoring Integration
-- Compatible with Dynatrace OneAgent
-- Built-in problem patterns for demonstration
-- Configurable load generation
-- Real-time performance monitoring capabilities
-
-## Common Issues & Solutions
-- **Git missing**: Amazon Linux 2 requires `sudo yum install git -y` before cloning repository
-- **Port conflicts**: Ensure no other services use required ports
-- **Memory issues**: Use t3.medium minimum for stable operation
-- **Docker permissions**: Add user to docker group and re-login
-- **Container startup**: Allow time for all services to initialize
-- **Network access**: Verify security group rules for external access
-
-## Useful Commands
-```bash
-# Check container status
-docker-compose ps
-
-# View logs
-docker-compose logs -f [service_name]
-
-# Restart services
-docker-compose restart
-
-# Stop all services
-docker-compose down
-
-# Update and restart
-docker-compose pull && docker-compose up -d
-```
-
-## GitHub Repository Management
-- **GitHub Setup**: Follow GITHUB.md in this folder for repository setup instructions
-- **When asked about GitHub repositories**: Reference the GITHUB.md file in this project folder
-- **Critical**: Always check .gitignore before committing - AmazonQ.md should NEVER be committed
-- **CRITICAL RULE**: When asked "is everything synced with github?" - NEVER suggest checking or committing AmazonQ.md. It's intentionally in .gitignore and must stay local only. Focus only on tracked files for GitHub sync status.
-
-## Rules
-- Always update AGENTS.md when discovering new deployment insights
-- **Current status is in amazonq.md context** - check existing deployment before creating new infrastructure
-- Use AWS CLI to verify resources before creating new ones
-- Document any deployment issues and their solutions
-- Test application accessibility after deployment
-- **Default Infrastructure Behavior**: Check amazonq.md first - only create new infrastructure if none exists
-- **Default Region**: Use us-east-2 unless otherwise specified
-- **Status Reporting**: Current deployment status is always available in amazonq.md context
-- **CRITICAL: ALWAYS UPDATE STATUS FILES** - After ANY infrastructure change (start/stop/terminate/create), immediately update the easytravel-demo status documentation (AmazonQ.md) to reflect current state. Failure to update status files causes context loss and repeated mistakes across chat sessions.
-- **CRITICAL: ALWAYS REPORT ALL 4 ACCESS POINTS** - When reporting deployment status or finishing installations, ALWAYS include all 4 application URLs:
-  - Main Portal: http://IP:80
-  - Angular UI: http://IP:9079  
-  - Backend API: http://IP:8080
-  - Direct Backend: http://IP:8091
-
-## Cleanup Strategy
-
-### Option 1: Shutdown Instance (Preserve Infrastructure)
-For temporary shutdown while preserving all infrastructure and configuration:
-
-```bash
-# Stop the EC2 instance (preserves all data and configuration)
-aws ec2 stop-instances --region us-east-2 --instance-ids INSTANCE_ID
-
-# Verify instance is stopped
-aws ec2 describe-instances --region us-east-2 --instance-ids INSTANCE_ID --query "Reservations[].Instances[].[InstanceId,State.Name]" --output table
-```
-
-**To restart later:**
-```bash
-# Start the stopped instance
-aws ec2 start-instances --region us-east-2 --instance-ids INSTANCE_ID
-
-# Get new public IP (changes after stop/start)
-aws ec2 describe-instances --region us-east-2 --instance-ids INSTANCE_ID --query "Reservations[].Instances[].[InstanceId,PublicIpAddress,State.Name]" --output table
-```
-
-**Benefits:**
-- Preserves all configuration and data
-- No redeployment needed
-- Faster restart (2-3 minutes vs 10-15 minutes for new deployment)
-- Keeps same instance ID and security group
-- easyTravel autostart service will restart containers automatically
-
-**Note:** Public IP changes after stop/start, but all configuration remains intact.
-
-### Option 2: Complete Infrastructure Cleanup
-When cleaning up easyTravel deployments permanently, follow this order to avoid dependency issues:
-
-1. **Terminate and Clean Up EC2 Instances**
-   ```bash
-   # List instances first (including terminated ones)
-   aws ec2 describe-instances --region us-east-2 --filters "Name=tag:Name,Values=easyTravel*" --query "Reservations[].Instances[].[InstanceId,Tags[?Key=='Name'].Value|[0],State.Name]" --output table
-   
-   # Terminate running instances (if any)
-   aws ec2 terminate-instances --region us-east-2 --instance-ids INSTANCE_ID
-   
-   # Note: Terminated instances remain visible for ~1 hour before AWS auto-cleanup
-   # No manual deletion needed - AWS handles this automatically
-   ```
-
-2. **Delete Key Pairs**
-   ```bash
-   # List key pairs
-   aws ec2 describe-key-pairs --region us-east-2 --query "KeyPairs[].[KeyName,KeyPairId]" --output table
-   
-   # Delete key pair
-   aws ec2 delete-key-pair --region us-east-2 --key-name easytravel-key
-   ```
-
-3. **Remove Local PEM Files**
-   ```bash
-   # Remove from current directory (avoid confusion with old keys)
-   rm -f /home/ubuntu/mcpprojects/easytravel-demo/easytravel-key.pem
-   rm -f /home/ubuntu/mcpprojects/easytravel-demo/*.pem
-   ```
-
-4. **Delete Security Groups** (if custom ones were created)
-   ```bash
-   # List security groups
-   aws ec2 describe-security-groups --region us-east-2 --filters "Name=group-name,Values=easyTravel*" --query "SecurityGroups[].[GroupName,GroupId]" --output table
-   
-   # Delete security group (only if not default)
-   aws ec2 delete-security-group --region us-east-2 --group-id sg-xxxxxxxxx
-   ```
-
-5. **Clean Local Files**
-   ```bash
-   # Remove only PEM files (keep working scripts and service files)
-   rm -f /home/ubuntu/mcpprojects/easytravel-demo/*.pem
-   ```
-
-### Cleanup Verification
-- Verify no running instances: `aws ec2 describe-instances --region us-east-2 --filters "Name=instance-state-name,Values=running"`
-- Verify no easyTravel key pairs: `aws ec2 describe-key-pairs --region us-east-2`
-- Verify local directory is clean of PEM files: `ls -la *.pem 2>/dev/null || echo "Clean"`
-
-### Important Notes
-- **Always terminate instances first** to avoid charges
-- **Terminated instances remain visible** for ~1 hour before AWS auto-cleanup
-- **Remove PEM files immediately** after deleting key pairs to prevent confusion
-- **Check for custom security groups** - don't delete default VPC security groups
-- **Update documentation** after cleanup to reflect current state
-- **Verify cleanup completion** before considering task complete
-
-## Critical Mistakes to Avoid
-- **Don't assume existing infrastructure**: Always check AWS resources first
-- **Don't use hardcoded resource IDs**: Security groups, subnets vary by account/region
-- **Don't use hardcoded AMI IDs**: Always query for latest AMI dynamically by region
-- **Use correct AWS CLI parameters**: Use `--count` not `--min-count/--max-count` for run-instances
-- **Don't forget SSH access**: Always add port 22 to security group for remote access
-- **Don't skip Docker group membership**: User must be in docker group to run containers
-- **Don't forget logout/login**: Required after adding user to docker group
-- **Don't ignore container logs**: Check logs if services fail to start properly
-- **Always verify ports**: Use netstat to confirm services are listening on expected ports
+## Git repository and publication
+- Repository: https://github.com/apmlabs/easytravel-demo (verified from Git origin on 2026-09-10).
+- Respect this repository’s `.gitignore`; inspect tracked changes separately because ignore rules do not remove already tracked files. Stage only task-owned paths and never force-add ignored private material.
